@@ -71,6 +71,50 @@ const createUsernames = function (accs) {
   });
 };
 
+const displayMovements = function (userAccount) {
+  containerApp.style.opacity = 1;
+  containerMovements.innerHTML = '';
+
+  userAccount.movements.forEach((mov, i) => {
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const html = `<div class="movements__row">
+          <div class="movements__type movements__type--${type}">${
+      i + 1
+    } ${type}</div>
+          <div class="movements__date">1 days ago</div>
+          <div class="movements__value">${mov}</div>
+        </div>`;
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  });
+};
+
+const displayCurrentBalance = function (userAccount) {
+  labelBalance.textContent = userAccount.movements.reduce(
+    (acc, cur) => (acc += cur)
+  );
+};
+
+const displayAccountSummary = function (userAccount) {
+  labelSumIn.textContent = userAccount.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, cur) => (acc += cur));
+
+  labelSumOut.textContent = userAccount.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, cur) => (acc += cur));
+
+  labelSumInterest.textContent = userAccount.movements
+    .filter(mov => mov > 0)
+    .map(mov => (mov * userAccount.interestRate) / 100)
+    .reduce((acc, cur) => (acc += cur));
+};
+
+const updateUI = function (userAccount) {
+  displayMovements(userAccount);
+  displayCurrentBalance(userAccount);
+  displayAccountSummary(userAccount);
+};
+
 const clearLoginInputs = function () {
   inputLoginUsername.value = '';
   inputLoginPin.value = '';
