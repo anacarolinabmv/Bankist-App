@@ -60,3 +60,42 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
+//GENERATING USERNAMES
+
+const createUsernames = function (accs) {
+  accs.forEach(acc => {
+    const owner = acc.owner.toLowerCase();
+    acc.username = owner
+      .split(' ')
+      .reduce((acc, value) => (acc += value.at(0)), '');
+  });
+};
+
+const clearLoginInputs = function () {
+  inputLoginUsername.value = '';
+  inputLoginPin.value = '';
+};
+
+const validateLogin = function (accs) {
+  const user = inputLoginUsername.value;
+  const password = +inputLoginPin.value;
+
+  const userAccount = accs.find(
+    acc => acc.username === user && acc.pin === password
+  );
+
+  updateUI(userAccount);
+  clearLoginInputs();
+};
+
+const init = function () {
+  createUsernames(accounts);
+};
+init();
+
+//EVENT LISTENERS
+
+btnLogin.addEventListener('click', e => {
+  e.preventDefault();
+  validateLogin(accounts);
+});
