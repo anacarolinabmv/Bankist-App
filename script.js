@@ -34,7 +34,9 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
+
 // SELECTING DOM ELEMENTS
+
 const labelWelcome = document.querySelector('.welcome');
 const labelDate = document.querySelector('.date');
 const balanceLabel = document.querySelector('.balance__label');
@@ -60,6 +62,7 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
+
 //GENERATING USERNAMES
 
 const createUsernames = function (accs) {
@@ -71,6 +74,7 @@ const createUsernames = function (accs) {
   });
 };
 
+//DISPLAY BALANCES AND MOVEMENTS
 const displayMovements = function (userAccount) {
   containerApp.style.opacity = 1;
   containerMovements.innerHTML = '';
@@ -109,15 +113,21 @@ const displayAccountSummary = function (userAccount) {
     .reduce((acc, cur) => (acc += cur));
 };
 
+//UPDATE USER INTERFACE
 const updateUI = function (userAccount) {
   displayMovements(userAccount);
   displayCurrentBalance(userAccount);
   displayAccountSummary(userAccount);
 };
 
+//LOGIN
 const clearLoginInputs = function () {
   inputLoginUsername.value = '';
   inputLoginPin.value = '';
+};
+
+const displayWelcomenMessage = function (msg) {
+  labelWelcome.textContent = msg;
 };
 
 const validateLogin = function (accs) {
@@ -130,10 +140,12 @@ const validateLogin = function (accs) {
 
   updateUI(userAccount);
   clearLoginInputs();
+  displayWelcomenMessage(`Welcome, ${userAccount.owner.split(' ')[0]}`);
 };
 
 const init = function () {
   createUsernames(accounts);
+  displayWelcomenMessage('Log in to get started');
 };
 init();
 
