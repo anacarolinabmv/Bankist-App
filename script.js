@@ -137,6 +137,10 @@ const transferMoney = function (accs) {
 
   recepient.movements.push(amount);
   currentAcc.movements.push(-amount);
+
+  setTimeout(() => {
+    updateUI(currentAcc);
+  }, 500);
 };
 
 //LOGIN
