@@ -76,6 +76,11 @@ const createUsernames = function (accounts) {
 };
 
 //DISPLAY BALANCES AND MOVEMENTS
+
+const roundToTwoDec = function (value) {
+  return Math.round(value * 100) / 100;
+};
+
 const renderMovements = function (currentAcc) {
   containerApp.style.opacity = 1;
   containerMovements.innerHTML = '';
@@ -87,35 +92,43 @@ const renderMovements = function (currentAcc) {
       i + 1
     } ${type}</div>
           <div class="movements__date">1 days ago</div>
-          <div class="movements__value">${mov}€</div>
+          <div class="movements__value">${roundToTwoDec(mov)}€</div>
         </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
 
 const calcBalance = function (currentAcc) {
-  const balance = currentAcc.movements.reduce((acc, cur) => (acc += cur));
+  const balance = roundToTwoDec(
+    currentAcc.movements.reduce((acc, cur) => (acc += cur))
+  );
   return balance;
 };
 
 const displayAccountSummary = function (currentAcc) {
   labelBalance.textContent = `${calcBalance(currentAcc)}€`;
 
-  labelSumIn.textContent = `${currentAcc.movements
-    .filter(mov => mov > 0)
-    .reduce((acc, cur) => acc + cur, 0)}€`;
-
-  labelSumOut.textContent = `${Math.abs(
+  labelSumIn.textContent = `${roundToTwoDec(
     currentAcc.movements
-      .filter(mov => mov < 0)
+      .filter(mov => mov > 0)
       .reduce((acc, cur) => acc + cur, 0)
   )}€`;
 
-  labelSumInterest.textContent = `${currentAcc.movements
-    .filter(mov => mov > 0)
-    .map(mov => (mov * currentAcc.interestRate) / 100)
-    .filter((int, i, arr) => int >= 1)
-    .reduce((acc, cur) => acc + cur, 0)}€`;
+  labelSumOut.textContent = `${roundToTwoDec(
+    Math.abs(
+      currentAcc.movements
+        .filter(mov => mov < 0)
+        .reduce((acc, cur) => acc + cur, 0)
+    )
+  )}€`;
+
+  labelSumInterest.textContent = `${roundToTwoDec(
+    currentAcc.movements
+      .filter(mov => mov > 0)
+      .map(mov => (mov * currentAcc.interestRate) / 100)
+      .filter((int, i, arr) => int >= 1)
+      .reduce((acc, cur) => acc + cur, 0)
+  )}€`;
 };
 
 //UPDATE USER INTERFACE
