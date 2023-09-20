@@ -214,9 +214,18 @@ const validateLogin = function (accounts) {
   displayWelcomeMessage(`Welcome, ${currentAccount.owner.split(' ')[0]}`);
 };
 
+const formatDate = function () {
+  const now = new Date().toString().split(' ');
+  const date = `${now.slice(0, 1)}, ${now.slice(1, 2)} 
+  ${now.slice(2, 3)}, ${now.slice(3, 4)}`;
+
+  labelDate.textContent = date;
+};
+
 const init = function () {
   createUsernames(accounts);
   displayWelcomeMessage('Log in to get started');
+  formatDate();
 };
 init();
 
