@@ -138,15 +138,15 @@ const transferMoney = function (accs) {
   recepient.movements.push(amount);
   currentAcc.movements.push(-amount);
 
+  clearInputs(inputTransferTo, inputTransferAmount);
   setTimeout(() => {
     updateUI(currentAcc);
   }, 500);
 };
 
 //LOGIN
-const clearLoginInputs = function () {
-  inputLoginUsername.value = '';
-  inputLoginPin.value = '';
+const clearInputs = function (...inputs) {
+  inputs.map(inp => (inp.value = ''));
 };
 
 const displayWelcomenMessage = function (msg) {
@@ -165,7 +165,7 @@ const validateLogin = function (accs) {
 
   currentAcc = userAccount;
   updateUI(userAccount);
-  clearLoginInputs();
+  clearInputs(inputLoginUsername, inputLoginPin);
   displayWelcomenMessage(`Welcome, ${userAccount.owner.split(' ')[0]}`);
 };
 
