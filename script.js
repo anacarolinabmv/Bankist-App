@@ -63,10 +63,9 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-//GENERATING USERNAMES
-
 let currentAcc;
 
+//GENERATING USERNAMES
 const createUsernames = function (accs) {
   accs.forEach(acc => {
     const owner = acc.owner.toLowerCase();
@@ -77,11 +76,11 @@ const createUsernames = function (accs) {
 };
 
 //DISPLAY BALANCES AND MOVEMENTS
-const renderMovements = function (currentAccount) {
+const renderMovements = function (currentAcc) {
   containerApp.style.opacity = 1;
   containerMovements.innerHTML = '';
 
-  currentAccount.movements.forEach((mov, i) => {
+  currentAcc.movements.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
@@ -94,35 +93,49 @@ const renderMovements = function (currentAccount) {
   });
 };
 
-const displayCurrentBalance = function (currentAccount) {
-  labelBalance.textContent = `${currentAccount.movements.reduce(
-    (acc, cur) => (acc += cur)
-  )}€`;
+const calcBalance = function (currentAcc) {
+  const balance = currentAcc.movements.reduce((acc, cur) => (acc += cur));
+  return balance;
 };
 
-const displayAccountSummary = function (currentAccount) {
-  labelSumIn.textContent = `${currentAccount.movements
+const displayAccountSummary = function (currentAcc) {
+  labelBalance.textContent = `${calcBalance(currentAcc)}€`;
+
+  labelSumIn.textContent = `${currentAcc.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0)}€`;
 
   labelSumOut.textContent = `${Math.abs(
-    currentAccount.movements
+    currentAcc.movements
       .filter(mov => mov < 0)
       .reduce((acc, cur) => acc + cur, 0)
   )}€`;
 
-  labelSumInterest.textContent = `${currentAccount.movements
+  labelSumInterest.textContent = `${currentAcc.movements
     .filter(mov => mov > 0)
-    .map(mov => (mov * currentAccount.interestRate) / 100)
+    .map(mov => (mov * currentAcc.interestRate) / 100)
     .filter((int, i, arr) => int >= 1)
     .reduce((acc, cur) => acc + cur, 0)}€`;
 };
 
 //UPDATE USER INTERFACE
-const updateUI = function (currentAccount) {
-  renderMovements(currentAccount);
-  displayCurrentBalance(currentAccount);
-  displayAccountSummary(currentAccount);
+const updateUI = function (currentAcc) {
+  renderMovements(currentAcc);
+  displayAccountSummary(currentAcc);
+};
+
+//REQUEST LOAN
+const requestLoan = function () {
+  const amount = +inputLoanAmount.value;
+
+  if (amount > calcBalance(currentAcc) || amount <= 0) return;
+  currentAcc.movements.push(amount);
+
+  setTimeout(() => {
+    updateUI(currentAcc);
+  }, 500);
+
+  clearInputs(inputLoanAmount);
 };
 
 //TRANSFER MONEY
@@ -139,17 +152,20 @@ const transferMoney = function (accs) {
   currentAcc.movements.push(-amount);
 
   clearInputs(inputTransferTo, inputTransferAmount);
+
   setTimeout(() => {
     updateUI(currentAcc);
   }, 500);
 };
 
-//LOGIN
+//CLEAR INPUT FIELDS
 const clearInputs = function (...inputs) {
   inputs.map(inp => (inp.value = ''));
 };
 
-const displayWelcomenMessage = function (msg) {
+//LOGIN
+
+const displayWelcomeMessage = function (msg) {
   labelWelcome.textContent = msg;
 };
 
@@ -157,21 +173,18 @@ const validateLogin = function (accs) {
   const user = inputLoginUsername.value;
   const password = +inputLoginPin.value;
 
-  const userAccount = accs.find(
-    acc => acc.username === user && acc.pin === password
-  );
+  currentAcc = accs.find(acc => acc.username === user && acc.pin === password);
 
-  if (!userAccount) return;
+  if (!currentAcc) return;
 
-  currentAcc = userAccount;
-  updateUI(userAccount);
+  updateUI(currentAcc);
   clearInputs(inputLoginUsername, inputLoginPin);
-  displayWelcomenMessage(`Welcome, ${userAccount.owner.split(' ')[0]}`);
+  displayWelcomeMessage(`Welcome, ${currentAcc.owner.split(' ')[0]}`);
 };
 
 const init = function () {
   createUsernames(accounts);
-  displayWelcomenMessage('Log in to get started');
+  displayWelcomeMessage('Log in to get started');
 };
 init();
 
@@ -186,12 +199,7 @@ btnTransfer.addEventListener('click', e => {
   e.preventDefault();
   transferMoney(accounts);
 });
-
-const movements = [5000, 3400, -150, -790, -3210, -1000, 8500, -30];
-
-const deposits = movements
-  .filter(mov => mov > 0)
-  .map(depEur => depEur * 1.2)
-  .reduce((acc, cur) => acc + cur, 0);
-
-console.log(deposits);
+btnLoan.addEventListener('click', e => {
+  e.preventDefault();
+  requestLoan();
+});
