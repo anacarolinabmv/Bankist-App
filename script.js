@@ -151,11 +151,13 @@ const updateUI = function (currentAcc) {
 const requestLoan = function () {
   const amount = +inputLoanAmount.value;
 
-  if (amount > calcBalance(currentAcc) || amount <= 0) return;
-  currentAcc.movements.push(amount);
+  if (!currentAccount.movements.some(dep => dep >= amount * 0.1) || amount <= 0)
+    return;
+
+  currentAccount.movements.push(amount);
 
   setTimeout(() => {
-    updateUI(currentAcc);
+    updateUI(currentAccount);
   }, 500);
 
   clearInputs(inputLoanAmount);
@@ -167,8 +169,9 @@ const transferMoney = function (accs) {
   const transferTo = inputTransferTo.value;
   const amount = +inputTransferAmount.value;
 
-  const recepient = accs.find(acc => acc.username === transferTo);
+  if (amount > calcBalance(currentAccount) || amount <= 0) return;
 
+  const recepient = accs.find(acc => acc.username === transferTo);
   if (!recepient || recepient === currentAccount) return;
 
   recepient.movements.push(amount);
@@ -213,6 +216,8 @@ const validateLogin = function (accounts) {
   const user = inputLoginUsername.value;
   const pin = +inputLoginPin.value;
 
+  inputLoginPin.blur();
+
   currentAccount = accounts.find(
     acc => acc.username === user && acc.pin === pin
   );
@@ -224,7 +229,7 @@ const validateLogin = function (accounts) {
   displayWelcomeMessage(`Welcome, ${currentAccount.owner.split(' ')[0]}`);
 };
 
-const formatDate = function () {
+const formatDisplayDate = function () {
   const now = new Date().toString().split(' ');
   const date = `${now.slice(0, 1)}, ${now.slice(1, 2)} 
   ${now.slice(2, 3)}, ${now.slice(3, 4)}`;
@@ -235,7 +240,7 @@ const formatDate = function () {
 const init = function () {
   createUsernames(accounts);
   displayWelcomeMessage('Log in to get started');
-  formatDate();
+  formatDisplayDate();
 };
 init();
 
