@@ -63,11 +63,11 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-let currentAcc;
+let currentAccount;
 
 //GENERATING USERNAMES
-const createUsernames = function (accs) {
-  accs.forEach(acc => {
+const createUsernames = function (accounts) {
+  accounts.forEach(acc => {
     const owner = acc.owner.toLowerCase();
     acc.username = owner
       .split(' ')
@@ -146,15 +146,15 @@ const transferMoney = function (accs) {
 
   const recepient = accs.find(acc => acc.username === transferTo);
 
-  if (!recepient || recepient === currentAcc) return;
+  if (!recepient || recepient === currentAccount) return;
 
   recepient.movements.push(amount);
-  currentAcc.movements.push(-amount);
+  currentAccount.movements.push(-amount);
 
   clearInputs(inputTransferTo, inputTransferAmount);
 
   setTimeout(() => {
-    updateUI(currentAcc);
+    updateUI(currentAccount);
   }, 500);
 };
 
@@ -163,23 +163,42 @@ const clearInputs = function (...inputs) {
   inputs.map(inp => (inp.value = ''));
 };
 
-//LOGIN
+//LOGOUT
+const logOut = function () {
+  containerApp.style.opacity = 0;
+  displayWelcomeMessage('Log in to get started');
+};
 
+//CLOSE ACCOUNT
+const closeAccount = function () {
+  const user = inputCloseUsername.value;
+  const pin = +inputClosePin.value;
+
+  if (currentAccount.username !== user || currentAccount.pin !== pin) return;
+
+  const accIndex = accounts.findIndex(acc => acc.username === user);
+  accounts.splice(accIndex, 1);
+  logOut();
+};
+
+//LOGIN
 const displayWelcomeMessage = function (msg) {
   labelWelcome.textContent = msg;
 };
 
-const validateLogin = function (accs) {
+const validateLogin = function (accounts) {
   const user = inputLoginUsername.value;
-  const password = +inputLoginPin.value;
+  const pin = +inputLoginPin.value;
 
-  currentAcc = accs.find(acc => acc.username === user && acc.pin === password);
+  currentAccount = accounts.find(
+    acc => acc.username === user && acc.pin === pin
+  );
 
-  if (!currentAcc) return;
+  if (!currentAccount) return;
 
-  updateUI(currentAcc);
+  updateUI(currentAccount);
   clearInputs(inputLoginUsername, inputLoginPin);
-  displayWelcomeMessage(`Welcome, ${currentAcc.owner.split(' ')[0]}`);
+  displayWelcomeMessage(`Welcome, ${currentAccount.owner.split(' ')[0]}`);
 };
 
 const init = function () {
@@ -202,4 +221,8 @@ btnTransfer.addEventListener('click', e => {
 btnLoan.addEventListener('click', e => {
   e.preventDefault();
   requestLoan();
+});
+btnClose.addEventListener('click', e => {
+  e.preventDefault();
+  closeAccount();
 });
