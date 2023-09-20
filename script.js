@@ -64,6 +64,7 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 let currentAccount;
+let sorted = false;
 
 //GENERATING USERNAMES
 const createUsernames = function (accounts) {
@@ -76,16 +77,25 @@ const createUsernames = function (accounts) {
 };
 
 //DISPLAY BALANCES AND MOVEMENTS
+const sortMovements = function () {
+  sorted = !sorted;
+
+  renderMovements(
+    sorted
+      ? [...currentAccount.movements].sort((a, b) => a - b)
+      : currentAccount.movements
+  );
+};
 
 const roundToTwoDec = function (value) {
   return Math.round(value * 100) / 100;
 };
 
-const renderMovements = function (currentAcc) {
+const renderMovements = function (movements) {
   containerApp.style.opacity = 1;
   containerMovements.innerHTML = '';
 
-  currentAcc.movements.forEach((mov, i) => {
+  movements.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
@@ -133,7 +143,7 @@ const displayAccountSummary = function (currentAcc) {
 
 //UPDATE USER INTERFACE
 const updateUI = function (currentAcc) {
-  renderMovements(currentAcc);
+  renderMovements(currentAcc.movements);
   displayAccountSummary(currentAcc);
 };
 
@@ -247,4 +257,8 @@ btnLoan.addEventListener('click', e => {
 btnClose.addEventListener('click', e => {
   e.preventDefault();
   closeAccount();
+});
+btnSort.addEventListener('click', e => {
+  e.preventDefault();
+  sortMovements();
 });
