@@ -65,6 +65,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 let currentAccount;
 let sorted = false;
+let intervalId;
 
 //GENERATING USERNAMES
 const createUsernames = function (accounts) {
@@ -207,6 +208,31 @@ const closeAccount = function () {
   logOut();
 };
 
+//COUNTDOWN TIMER
+
+const startLogoutTimer = function (duration) {
+  //duration = 600s=10min
+  if (intervalId) clearInterval(intervalId);
+
+  const timer = function () {
+    let minutes = Math.trunc(duration / 60);
+    let seconds = duration % 60;
+
+    labelTimer.textContent =
+      `${minutes}`.padStart(0, 2) + ':' + `${seconds}`.padStart(2, 0);
+
+    if (duration === 0) {
+      clearInterval(intervalId);
+      logOut();
+    }
+    duration--;
+  };
+
+  timer();
+
+  intervalId = setInterval(timer, 1000);
+};
+
 //LOGIN
 const displayWelcomeMessage = function (msg) {
   labelWelcome.textContent = msg;
@@ -227,6 +253,7 @@ const validateLogin = function (accounts) {
   updateUI(currentAccount);
   clearInputs(inputLoginUsername, inputLoginPin);
   displayWelcomeMessage(`Welcome, ${currentAccount.owner.split(' ')[0]}`);
+  startLogoutTimer(600);
 };
 
 const formatDisplayDate = function () {
